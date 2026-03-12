@@ -1,0 +1,10 @@
+# Survey output files
+*.csv
+*.html
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
