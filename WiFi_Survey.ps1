@@ -629,151 +629,168 @@ foreach ($r in $allResults) {
 $html = @"
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wi-Fi電波測定レポート - $facilityName</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Segoe UI','Meiryo','Yu Gothic',sans-serif; background:#f0f4f8; color:#1a202c; padding:20px; }
-.container { max-width:1200px; margin:0 auto; }
-.header { background:linear-gradient(135deg,#7c3aed,#5b21b6); color:#fff; padding:24px 32px; border-radius:12px; margin-bottom:20px; }
-.header h1 { font-size:22px; font-weight:700; }
-.header p  { font-size:13px; opacity:0.85; margin-top:4px; }
-.summary { display:flex; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
-.summary-card { flex:1; min-width:180px; background:#fff; border-radius:12px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.08); text-align:center; }
-.summary-card .label { font-size:12px; color:#64748b; font-weight:600; text-transform:uppercase; }
-.summary-card .value { font-size:28px; font-weight:700; margin-top:4px; }
-.summary-card .sub   { font-size:13px; color:#94a3b8; margin-top:2px; }
-.card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08); margin-bottom:20px; overflow:hidden; }
-.card-header { padding:16px 24px; border-bottom:1px solid #e5e7eb; }
-.card-header h2 { font-size:16px; font-weight:700; color:#1e293b; }
-table { width:100%; border-collapse:collapse; }
-th { text-align:left; padding:10px 12px; background:#f8fafc; color:#64748b; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; border-bottom:2px solid #e2e8f0; }
-td { padding:10px 12px; font-size:13px; border-bottom:1px solid #f1f5f9; }
-.legend { display:flex; gap:20px; padding:16px 24px; flex-wrap:wrap; border-top:1px solid #e5e7eb; }
-.legend-item { display:flex; align-items:center; gap:6px; font-size:12px; color:#64748b; }
-.legend-dot  { width:12px; height:12px; border-radius:50%; }
-.note   { font-size:12px; color:#64748b; padding:12px 24px; background:#f8fafc; border-top:1px solid #e5e7eb; }
-.footer { text-align:center; padding:16px; color:#94a3b8; font-size:12px; }
-.btn-group { display:flex; gap:12px; justify-content:center; padding:24px; flex-wrap:wrap; }
-.btn { padding:12px 32px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
-.btn-primary   { background:#7c3aed; color:#fff; }
-.btn-primary:hover   { background:#6d28d9; }
-.btn-secondary { background:#f1f5f9; color:#475569; }
-.btn-secondary:hover { background:#e2e8f0; }
-.room-detail { border:1px solid #e2e8f0; border-radius:8px; margin-bottom:10px; overflow:hidden; }
-.room-detail-header { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#f8fafc; cursor:pointer; font-size:13px; font-weight:600; color:#1e293b; user-select:none; }
-.room-detail-header:hover { background:#f1f5f9; }
-.room-detail-body { padding:16px; }
-.toggle-icon { font-size:12px; color:#94a3b8; flex-shrink:0; margin-left:8px; }
-@media print {
-  body{background:#fff;padding:10px;}
-  .btn-group{display:none;}
-  .summary-card,.card{box-shadow:none;border:1px solid #e5e7eb;}
-  .room-detail-body{display:block !important;}
-}
-</style>
-</head>
-<body>
-<div class="container">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wi-Fi電波測定レポート - $facilityName</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Segoe UI', 'Meiryo', 'Yu Gothic', sans-serif; background: #f0f4f8; color: #1a202c; padding: 20px; }
+      .container { max-width: 1200px; margin: 0 auto; }
 
-<div class="header">
-<h1>&#128225; Wi-Fi電波測定レポート</h1>
-<p>施設名: $facilityName ／ 測定対象SSID: $targetSSID ／ 測定日時: $dateStr ／ 測定居室数: $($allResults.Count)</p>
-</div>
+      /* ヘッダー */
+      .header          { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: #fff; padding: 24px 32px; border-radius: 12px; margin-bottom: 20px; }
+      .header h1       { font-size: 22px; font-weight: 700; }
+      .header p        { font-size: 13px; opacity: 0.85; margin-top: 4px; }
 
-<div class="summary">
-<div class="summary-card">
-<div class="label">全体平均</div>
-<div class="value" style="color:$overallColor">${overallAvg} dBm</div>
-<div class="sub">$overallRating</div>
-</div>
-<div class="summary-card">
-<div class="label">最低値</div>
-<div class="value" style="color:#ef4444">${overallMin} dBm</div>
-<div class="sub">全居室の最小値</div>
-</div>
-<div class="summary-card">
-<div class="label">測定居室数</div>
-<div class="value" style="color:#2563eb">$($allResults.Count)</div>
-<div class="sub">各${MEASURE_COUNT}回スキャン</div>
-</div>
-<div class="summary-card">
-<div class="label">確認が必要な居室数</div>
-<div class="value" style="color:$(if($weakRooms -gt 0){'#ef4444'}else{'#10b981'})">$weakRooms</div>
-<div class="sub">社内目安値 -70 dBm 未達</div>
-</div>
-</div>
+      /* サマリーカード */
+      .summary         { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+      .summary-card    { flex: 1; min-width: 180px; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+      .summary-card .label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+      .summary-card .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+      .summary-card .sub   { font-size: 13px; color: #94a3b8; margin-top: 2px; }
 
-$measurementNote
+      /* カード */
+      .card            { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden; }
+      .card-header     { padding: 16px 24px; border-bottom: 1px solid #e5e7eb; }
+      .card-header h2  { font-size: 16px; font-weight: 700; color: #1e293b; }
 
-$weakWarning
+      /* テーブル */
+      table { width: 100%; border-collapse: collapse; }
+      th    { text-align: left; padding: 10px 12px; background: #f8fafc; color: #64748b; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #e2e8f0; }
+      td    { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
 
-<div class="card">
-<div class="card-header"><h2>&#128246; 居室別 測定結果</h2></div>
-<table>
-<tr>
-<th style="width:40px">No</th>
-<th>居室名</th>
-<th>SSID</th>
-<th style="text-align:center">帯域</th>
-<th style="text-align:center">Ch</th>
-<th>平均 RSSI</th>
-<th style="text-align:center">最小</th>
-<th style="text-align:center">最大</th>
-<th style="text-align:center">評価</th>
-<th style="text-align:center">時刻</th>
-</tr>
-$tableRows
-</table>
-<div class="legend">
-<div class="legend-item"><div class="legend-dot" style="background:#10b981"></div> 優良（-65 dBm 以上）</div>
-<div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> 良好（-70 dBm 以上）</div>
-<div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> 普通（-80 dBm 以上）</div>
-<div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> 弱い（-90 dBm 以上）</div>
-<div class="legend-item"><div class="legend-dot" style="background:#991b1b"></div> 非常に弱い（-90 dBm 未満）</div>
-</div>
-<div class="note">
-&#8251; 信号強度は netsh wlan show networks（スキャン結果）を RSSI(dBm) に変換して表示しています。移動中のローミング状態には依存しません。<br>
-&#8251; 各居室 ${MEASURE_COUNT} 回スキャンの統計値です。チャネル利用状況はNW担当者への参考情報として居室詳細セクションに記載しています。
-</div>
-</div>
+      /* 凡例・注記 */
+      .legend         { display: flex; gap: 20px; padding: 16px 24px; flex-wrap: wrap; border-top: 1px solid #e5e7eb; }
+      .legend-item    { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #64748b; }
+      .legend-dot     { width: 12px; height: 12px; border-radius: 50%; }
+      .note           { font-size: 12px; color: #64748b; padding: 12px 24px; background: #f8fafc; border-top: 1px solid #e5e7eb; }
 
-<div class="card">
-<div class="card-header"><h2>&#128202; 居室別 周辺ネットワーク詳細</h2></div>
-<div style="padding:16px 24px">
-<p style="font-size:12px;color:#64748b;margin-bottom:16px">
-各居室での測定時にスキャンした周辺ネットワークとチャネル利用状況です。各居室を展開して確認してください。
-</p>
-$roomDetailHtml
-</div>
-</div>
+      /* フッター・ボタン */
+      .footer         { text-align: center; padding: 16px; color: #94a3b8; font-size: 12px; }
+      .btn-group      { display: flex; gap: 12px; justify-content: center; padding: 24px; flex-wrap: wrap; }
+      .btn            { padding: 12px 32px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+      .btn-primary    { background: #7c3aed; color: #fff; }
+      .btn-primary:hover    { background: #6d28d9; }
+      .btn-secondary  { background: #f1f5f9; color: #475569; }
+      .btn-secondary:hover  { background: #e2e8f0; }
 
-<div class="btn-group">
-<button class="btn btn-primary" onclick="window.print()">&#128424; 印刷 / PDF保存</button>
-<button class="btn btn-secondary" onclick="location.reload()">&#128260; 閉じる</button>
-</div>
+      /* 居室詳細アコーディオン */
+      .room-detail          { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+      .room-detail-header   { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; cursor: pointer; font-size: 13px; font-weight: 600; color: #1e293b; user-select: none; }
+      .room-detail-header:hover { background: #f1f5f9; }
+      .room-detail-body     { padding: 16px; }
+      .toggle-icon          { font-size: 12px; color: #94a3b8; flex-shrink: 0; margin-left: 8px; }
 
-<div class="footer">
-ライフリズムナビ Wi-Fi電波測定ツール v2.0 &mdash; エコナビスタ株式会社
-</div>
+      /* 印刷用 */
+      @media print {
+        body                        { background: #fff; padding: 10px; }
+        .btn-group                  { display: none; }
+        .summary-card, .card        { box-shadow: none; border: 1px solid #e5e7eb; }
+        .room-detail-body           { display: block !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
 
-</div>
-<script>
-function toggleDetail(n) {
-  var body = document.getElementById('body-' + n);
-  var icon = document.getElementById('icon-' + n);
-  if (body.style.display === 'none') {
-    body.style.display = 'block';
-    icon.innerHTML = '&#9650;';
-  } else {
-    body.style.display = 'none';
-    icon.innerHTML = '&#9660;';
-  }
-}
-</script>
-</body>
+      <div class="header">
+        <h1>&#128225; Wi-Fi電波測定レポート</h1>
+        <p>施設名: $facilityName ／ 測定対象SSID: $targetSSID ／ 測定日時: $dateStr ／ 測定居室数: $($allResults.Count)</p>
+      </div>
+
+      <div class="summary">
+        <div class="summary-card">
+          <div class="label">全体平均</div>
+          <div class="value" style="color:$overallColor">${overallAvg} dBm</div>
+          <div class="sub">$overallRating</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">最低値</div>
+          <div class="value" style="color:#ef4444">${overallMin} dBm</div>
+          <div class="sub">全居室の最小値</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">測定居室数</div>
+          <div class="value" style="color:#2563eb">$($allResults.Count)</div>
+          <div class="sub">各${MEASURE_COUNT}回スキャン</div>
+        </div>
+        <div class="summary-card">
+          <div class="label">確認が必要な居室数</div>
+          <div class="value" style="color:$(if($weakRooms -gt 0){'#ef4444'}else{'#10b981'})">$weakRooms</div>
+          <div class="sub">社内目安値 -70 dBm 未達</div>
+        </div>
+      </div>
+
+      $measurementNote
+
+      $weakWarning
+
+      <div class="card">
+        <div class="card-header"><h2>&#128246; 居室別 測定結果</h2></div>
+        <table>
+          <tr>
+            <th style="width:40px">No</th>
+            <th>居室名</th>
+            <th>SSID</th>
+            <th style="text-align:center">帯域</th>
+            <th style="text-align:center">Ch</th>
+            <th>平均 RSSI</th>
+            <th style="text-align:center">最小</th>
+            <th style="text-align:center">最大</th>
+            <th style="text-align:center">評価</th>
+            <th style="text-align:center">時刻</th>
+          </tr>
+          $tableRows
+        </table>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div> 優良（-65 dBm 以上）</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> 良好（-70 dBm 以上）</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> 普通（-80 dBm 以上）</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> 弱い（-90 dBm 以上）</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#991b1b"></div> 非常に弱い（-90 dBm 未満）</div>
+        </div>
+        <div class="note">
+          &#8251; 信号強度は netsh wlan show networks（スキャン結果）を RSSI(dBm) に変換して表示しています。移動中のローミング状態には依存しません。<br>
+          &#8251; 各居室 ${MEASURE_COUNT} 回スキャンの統計値です。チャネル利用状況はNW担当者への参考情報として居室詳細セクションに記載しています。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>&#128202; 居室別 周辺ネットワーク詳細</h2></div>
+        <div style="padding:16px 24px">
+          <p style="font-size:12px;color:#64748b;margin-bottom:16px">
+            各居室での測定時にスキャンした周辺ネットワークとチャネル利用状況です。各居室を展開して確認してください。
+          </p>
+          $roomDetailHtml
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary"   onclick="window.print()">&#128424; 印刷 / PDF保存</button>
+        <button class="btn btn-secondary" onclick="location.reload()">&#128260; 閉じる</button>
+      </div>
+
+      <div class="footer">
+        ライフリズムナビ Wi-Fi電波測定ツール v2.0 &mdash; エコナビスタ株式会社
+      </div>
+
+    </div><!-- /.container -->
+
+    <script>
+      function toggleDetail(n) {
+        var body = document.getElementById('body-' + n);
+        var icon = document.getElementById('icon-' + n);
+        if (body.style.display === 'none') {
+          body.style.display = 'block';
+          icon.innerHTML = '&#9650;';
+        } else {
+          body.style.display = 'none';
+          icon.innerHTML = '&#9660;';
+        }
+      }
+    </script>
+  </body>
 </html>
 "@
 
